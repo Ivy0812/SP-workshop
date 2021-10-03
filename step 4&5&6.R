@@ -3,6 +3,7 @@ a <- scan("1581-0.txt",what="character",skip=156)
 n <- length(a)
 a <- a[-((n-2909):n)] ## strip license
 
+#step 4
 split_punct<- function(p) {
 ip<-grep(p, a, fixed=TRUE)
 xa<-gsub(p,"",a,fixed=TRUE)
@@ -12,7 +13,17 @@ xxa[iia]<-paste(p)
 xxa[-iia]<-xa
 return(xxa)
 }
+
+#step 5
 punc<-c(",", ".", ";", "!", ":", "?")
 for (p in punc) {
   a<-split_punct(p)
 }
+
+#step 6
+a<-tolower(a)
+b<-unique(a)#finds the vector of unique words
+c<-match(b,a)#finds the vector of indicies
+.Machine$integer.max <- 2^40
+freq<-tabulate(nchar(c))#indicates the number of times each unique word occurs in the text
+freq
