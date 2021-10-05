@@ -31,3 +31,5 @@ b<-b[b_index]
 b
 
 #step 7
+#kkk
+#lalala
