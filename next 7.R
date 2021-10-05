@@ -30,3 +30,4 @@ b_index<-sort(oder_index)
 b<-b[b_index]
 b
 
+#step 7
