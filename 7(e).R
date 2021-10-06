@@ -39,7 +39,9 @@ A <- matrix(0,length(b),length(b)) #initializing transition probility matrix A t
 for (i in 1:dim(D)[1]){
   A[D[i,1],D[i,2]] = A[D[i,1],D[i,2]] + 1
 } #count the number of each common word pair
-Standarlized_A<-A/rowSums(A)
+for (i in 1:length(b)){
+  A[i,]<-A[i,]/rowSums(A)[i]
+}
 
 #step 8
 set.seed(0)
