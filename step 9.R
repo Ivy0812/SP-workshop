@@ -15,10 +15,46 @@ return(xxa)
 }
 
 #step 5
-punc<-c(",", ".", ";", "!", ":", "?")
+punc<-c(",", ".", ";", "!", ":", "?","(",")","—","-","[","]")
 for (p in punc) {
   a<-split_punct(p)
 }
+
+#step 9
+cap_ia<-grep(".", a, fixed=TRUE)
+cap_ib<-grep("!", a, fixed=TRUE)
+cap_ic<-grep("?", a, fixed=TRUE)
+cap_iia<-cap_ia+1
+cap_iib<-cap_ib+1
+cap_iic<-cap_ic+1
+cap_index<-sort(c(cap_iia,cap_iib,cap_iic))
+cap<-a[cap_index]
+
+
+letter<-function(uu){
+letter_ip<-grep(uu,cap,fixed=TRUE)
+letter_iip<-letter_ip
+return(letter_iip)
+}
+
+ca<-rep("",length(cap))
+for (uu in LETTERS){
+  letter_index<-letter(uu)
+  ca[letter_index]<-cap[letter_index]
+}
+ca<-unique(ca)
+
+#number<-function(nn){
+  letter_ip<-grep(nn,ca,fixed = FALSE)
+  letter_iip<-letter_ip
+  return(letter_iip)
+}
+n<-c(0:9)
+for (nn in n){
+  letter_index<-letter(nn)
+  ca<-ca[-letter_index]
+}
+#write.table(ca,"/Users/yuwenyi/SP-workshop/ca.txt")
 
 #step 6
 a<-tolower(a)
@@ -54,3 +90,6 @@ for (i in 1:49){
   wsim[i+1] = b[isim[i+1]]
 } #loop through 
 cat(wsim)
+
+
+
