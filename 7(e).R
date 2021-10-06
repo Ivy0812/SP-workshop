@@ -46,7 +46,7 @@ set.seed(0)
 wsim = rep("", times = 50) #initializing 50 simulation words vector
 isim = rep(0,times = 50) #initializing indeces for 50 simulation words vector
 wsim[1] <- sample(b,1) #randomly choose the first word from b
-isim[1] = which(x == "word_1") #identify its index in b
+isim[1] = which(wsim[1] == "word_1") #identify its index in b
 for (i in 1:49){
   isim[i+1] = sample(1:length(b), 1, replace = TRUE, prob = Standarlized_A[isim[1],])
   wsim[i+1] = b[isim[i+1]]
