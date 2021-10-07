@@ -20,15 +20,52 @@ for (p in punc) {#create a for loop for all punctuation values to repeat separat
   a<-split_punct(p)
 }
 
+
+#step 6
+a<-tolower(a)#replace capital letters with lower case letters
+b<-unique(a)#finds the vector of unique words
+c<-match(a,b)#finds the vector of indicies
+freq<-tabulate(c)#indicates the number of times each unique word occurs in the text
+freq_1000<-sort(freq,decreasing=TRUE)#find that frequency of 1000th.
+order_index<-order(freq[freq>=freq_1000[1000]],decreasing=TRUE)
+b_index<-sort(order_index)
+b<-b[b_index]
+
+
+#STEP 7
+d <- match(a,b) #indices of the bible words in common word vector b
+D <- cbind(d[-length(a)],d[2:length(a)]) #remove the first and last entries
+D <- D[-which(is.na(rowSums(D)) == TRUE),] #matrix storing indices of common word pairs
+A <- matrix(0,length(b),length(b)) #initializing transition probility matrix A to be inserted
+for (i in 1:dim(D)[1]){
+  A[D[i,1],D[i,2]] = A[D[i,1],D[i,2]] + 1
+} #count the number of each common word pair
+for (i in 1:length(b)){#for every low, standardlize it by dividing by the sum of every entry in the row, using for loop to 
+  A[i,]<-A[i,]/rowSums(A)[i]
+}
+
+#step 8
+set.seed(0)
+wsim = rep("", times = 50) #initializing 50 simulation words vector
+isim = rep(0,times = 50) #initializing indices for 50 simulation words vector
+wsim[1] <- sample(b,1) #randomly choose the first word from b
+isim[1] = which(b == wsim[1]) #identify its index in b
+for (i in 1:49){
+  isim[i+1] = sample(1:length(b), 1, replace = TRUE, prob = A[isim[1],])
+  wsim[i+1] = b[isim[i+1]]
+} #loop through 
+cat(wsim)
+
+
 #step 9
-cap_ia<-grep(".", a, fixed=TRUE)
-cap_ib<-grep("!", a, fixed=TRUE)
-cap_ic<-grep("?", a, fixed=TRUE)
-cap_iia<-cap_ia+1
+cap_ia<-grep(".", a, fixed=TRUE)#find the indices of the words in a containing "."
+cap_ib<-grep("!", a, fixed=TRUE)#find the indices of the words in a containing "!"
+cap_ic<-grep("?", a, fixed=TRUE)#find the indices of the words in a containing "?"
+cap_iia<-cap_ia+1#find the locations of the capital letters which are normally one place after these three punctuation marks".""!""?""
 cap_iib<-cap_ib+1
 cap_iic<-cap_ic+1
-cap_index<-sort(c(cap_iia,cap_iib,cap_iic))
-cap<-a[cap_index]
+cap_index<-sort(c(cap_iia,cap_iib,cap_iic))#sort indices to display more clearly
+cap<-a[cap_index]#find words with capital letters since we already know their indices
 
 
 letter<-function(uu){
@@ -55,41 +92,5 @@ for (nn in n){
   ca<-ca[-letter_index]
 }
 #write.table(ca,"/Users/yuwenyi/SP-workshop/ca.txt")
-
-#step 6
-a<-tolower(a)
-b<-unique(a)#finds the vector of unique words
-c<-match(a,b)#finds the vector of indicies
-freq<-tabulate(c)#indicates the number of times each unique word occurs in the text
-freq_1000<-sort(freq,decreasing=TRUE)#find that frequency of 1000th.
-order_index<-order(freq[freq>=freq_1000[1000]],decreasing=TRUE)
-b_index<-sort(order_index)
-b<-b[b_index]
-
-
-#STEP 7
-d <- match(a,b) #indices of the bible words in common word vector b
-D <- cbind(d[-length(a)],d[2:length(a)]) 
-D <- D[-which(is.na(rowSums(D)) == TRUE),] #matrix storing indices of common word pairs
-A <- matrix(0,length(b),length(b)) #initializing transition probility matrix A to be inserted
-for (i in 1:dim(D)[1]){
-  A[D[i,1],D[i,2]] = A[D[i,1],D[i,2]] + 1
-} #count the number of each common word pair
-for (i in 1:length(b)){
-  A[i,]<-A[i,]/rowSums(A)[i]
-}
-
-#step 8
-set.seed(0)
-wsim = rep("", times = 50) #initializing 50 simulation words vector
-isim = rep(0,times = 50) #initializing indeces for 50 simulation words vector
-wsim[1] <- sample(b,1) #randomly choose the first word from b
-isim[1] = which(b == wsim[1]) #identify its index in b
-for (i in 1:49){
-  isim[i+1] = sample(1:length(b), 1, replace = TRUE, prob = Standarlized_A[isim[1],])
-  wsim[i+1] = b[isim[i+1]]
-} #loop through 
-cat(wsim)
-
 
 
