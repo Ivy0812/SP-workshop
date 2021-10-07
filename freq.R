@@ -3,47 +3,49 @@ a <- scan("1581-0.txt",what="character",skip=156)
 n <- length(a)
 a <- a[-((n-2909):n)] ## strip license
 
-#step 4
-split_punct<- function(p) {#create a function with input, we can input different punctuation marks
-ip<-grep(p, a, fixed=TRUE)#find the indices of words in the text containing an input "p"，i.e. punctuation mark
-xa<-gsub(p,"",a,fixed=TRUE)#substitute variable p with “”
-xxa<-rep("",length(xa)+length(ip))#create a vector of "" to store individual digits. Length of this vector is the sum of the number of elements in the text containing a "p" & the length of the vector xa
-iia<-ip+1:length(ip)#？compute the locations for punctuation marks. They are all located one place after
-xxa[iia]<-paste(p)#assign punctuation marks
-xxa[-iia]<-xa#?
+#step 4 
+#create a function with input of punctuation marks
+split_punct<- function(p) { 
+ip<-grep(p, a, fixed=TRUE) #find indices of words containing punctuation marks, p
+xa<-gsub(p,"",a,fixed=TRUE) #substitute variable p with “”
+xxa<-rep("",length(xa)+length(ip)) #create an empty vector to store individual digits
+iia<-ip+1:length(ip) #compute locations for punctuation marks
+xxa[iia]<-paste(p) #assign punctuation marks
+xxa[-iia]<-xa #insert the rest units
 return(xxa)
 }
 
 #step 5
-punc<-c(",", ".", ";", "!", ":", "?","(",")","—","-","[","]")#create a list containing the punction marks
-for (p in punc) {#create a for loop for all punctuation values to repeat separating them from the text
+#Separate punctuation marks
+punc<-c(",", ".", ";", "!", ":", "?","(",")","—","-","[","]")#create a vector containing punction marks
+for (p in punc) {
   a<-split_punct(p)
 }
 
 
 #step 6
 aa<-tolower(a)#replace capital letters with lower case letters
-b<-unique(aa)#finds the vector of unique words
-c<-match(aa,b)#finds the vector of indicies
-freq<-tabulate(c)#indicates the number of times each unique word occurs in the text
-freq_1000<-sort(freq,decreasing=TRUE)#find that frequency of 1000th.
-order_index<-order(freq[freq>=freq_1000[1000]],decreasing=TRUE)
-b_index<-sort(order_index)
-b<-b[b_index]
+b<-unique(aa)#find the vector of unique words
+c<-match(aa,b)#find indices representing where every unique word in aa is located in b
+freq<-tabulate(c)#indicate the number of times each unique word occurs in the text
+freq_1000<-sort(freq,decreasing=TRUE)#find the vector of frequency in deceasing order 
+order_index<-order(freq[freq>=freq_1000[1000]],decreasing=TRUE)#create the vector of indices whose frequency is greater than or equal to the 1000th
+b_index<-sort(order_index)#sort by increasing order
+b<-b[b_index]#create a vector b containing m most common words
 
 #step 9
-cap_index<-grep("\\b(?=[A-Z])", a, perl = TRUE)
-cap<-a[cap_index]
-cap_l <- tolower(cap)
-cap_u <- unique(cap_l)
-cap_b <- match(b,cap_u)
-cap_b <- cap_b[-which(is.na(cap_b))]
-cap_d <- cap_u[cap_b] #重复单词
-cap_e <- unique(cap[match(cap_d,cap_l)])
-cap_up <-match(a,cap_e)#finds the vector of indicies
-up_freq <-tabulate(cap_up)# 大写字母在a里面的频率
-cap_low <-match(a,cap_d)
-low_freq <-tabulate(cap_low)# 小写字母在a里面的频率
+cap_index<-grep("\\b(?=[A-Z])", a, perl = TRUE)#find the indices or words starting with capital letters
+cap_word<-a[cap_index]#vector of words starting with capital letters
+low_word <- tolower(cap_word)#vector storing lower case version of cap_word
+uniq <- unique(low_word)#find the vector of unique words
+b_uniq <- match(b,uniq)#find indices of common words
+b_uniq <- b_uniq[-which(is.na(b_uniq))]
+low_overlap <- uniq[b_uniq]#overlapping words with lower case letters
+cap_overlap <- unique(cap_word[match(low_overlap,low_word)])#find the capital case version of overlapping words
+cap_freq <-tabulate(match(a,cap_overlap))#the frequency of words with capital letters in a
+low_freq <-tabulate(match(a,low_overlap))#the frequency of words with lower case letters in a
+
+
 
 #STEP 7
 d <- match(a,b) #indices of the bible words in common word vector b
