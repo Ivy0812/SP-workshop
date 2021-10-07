@@ -4,19 +4,19 @@ n <- length(a)
 a <- a[-((n-2909):n)] ## strip license
 
 #step 4
-split_punct<- function(p) {
-ip<-grep(p, a, fixed=TRUE)
-xa<-gsub(p,"",a,fixed=TRUE)
-xxa<-rep("",length(xa)+length(ip))
-iia<-ip+1:length(ip)
-xxa[iia]<-paste(p)
-xxa[-iia]<-xa
+split_punct<- function(p) {#create a function with input, we can input different punctuation marks
+ip<-grep(p, a, fixed=TRUE)#find the indices of words in the text containing an input "p"，i.e. punctuation mark
+xa<-gsub(p,"",a,fixed=TRUE)#substitute variable p with “”
+xxa<-rep("",length(xa)+length(ip))#create a vector of "" to store individual digits. Length of this vector is the sum of the number of elements in the text containing a "p" & the length of the vector xa
+iia<-ip+1:length(ip)#？compute the locations for punctuation marks. They are all located one place after
+xxa[iia]<-paste(p)#assign punctuation marks
+xxa[-iia]<-xa#?
 return(xxa)
 }
 
 #step 5
-punc<-c(",", ".", ";", "!", ":", "?","(",")","—","-","[","]")
-for (p in punc) {
+punc<-c(",", ".", ";", "!", ":", "?","(",")","—","-","[","]")#create a list containing the punction marks
+for (p in punc) {#create a for loop for all punctuation values to repeat separating them from the text
   a<-split_punct(p)
 }
 
