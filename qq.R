@@ -17,7 +17,7 @@ return(xxa)
 
 #step 5
 #Separate punctuation marks
-punc<-c(",", ".", ";", "!", ":", "?","(",")","—","-","[","]")#create a vector containing punction marks
+punc<-c(",", ".", ";", "!", ":", "?")#create a vector containing punction marks"(",")","—","-","[","]"
 for (p in punc) {
   a<-split_punct(p)
 }
@@ -34,7 +34,7 @@ b_index<-sort(order_index)#sort by increasing order
 b<-b[b_index]#create a vector b containing m most common words
 
 #step 9
-cap_index<-grep("\\b(?=[A-Z])", a, perl = TRUE)#find the indices or words starting with capital letters
+cap_index<-grep("\\b^(?=[A-Z])", a, perl = TRUE)#find the indices or words starting with capital letters
 cap_word<-a[cap_index]#vector of words starting with capital letters
 low_word <- tolower(cap_word)#vector storing lower case version of cap_word
 uniq <- unique(low_word)#find the vector of unique words
@@ -46,10 +46,9 @@ cap_freq <-tabulate(match(a,cap_overlap))#the frequency of words with capital le
 low_freq <-tabulate(match(a,low_overlap))#the frequency of words with lower case letters in a
 
 
-
 #STEP 7
-d <- match(a,b) #indices of the bible words in common word vector b
-D <- cbind(d[-length(a)],d[2:length(a)]) #remove the first and last entries
+d <- match(aa,b) #indices of the bible words in common word vector b
+D <- cbind(d[-length(aa)],d[2:length(aa)]) #remove the first and last entries
 D <- D[-which(is.na(rowSums(D)) == TRUE),] #matrix storing indices of common word pairs
 A <- matrix(0,length(b),length(b)) #initializing transition probility matrix A to be inserted
 for (i in 1:dim(D)[1]){
@@ -68,5 +67,5 @@ isim[1] = which(b == wsim[1]) #identify its index in b
 for (i in 1:49){
   isim[i+1] = sample(1:length(b), 1, replace = TRUE, prob = A[isim[1],])
   wsim[i+1] = b[isim[i+1]]
-} #loop through 
-cat(wsim)
+} #generating sequence of words by sampling from pdf P(|i=isim[i])
+cat(wsim) 
