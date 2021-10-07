@@ -16,25 +16,34 @@ return(xxa)
 
 #step 5
 punc<-c(",", ".", ";", "!", ":", "?","(",")","—","-","[","]")#create a list containing the punction marks
-for (p in "[[:punct:]]") {#create a for loop for all punctuation values to repeat separating them from the text
+for (p in punc) {#create a for loop for all punctuation values to repeat separating them from the text
   a<-split_punct(p)
 }
 
-#step 9
-cap_index<-grep("\\b(?=[A-Z])", a, perl = TRUE)
-cap<-a[cap_index]
-
 
 #step 6
-a<-tolower(a)#replace capital letters with lower case letters
-b<-unique(a)#finds the vector of unique words
-c<-match(a,b)#finds the vector of indicies
+aa<-tolower(a)#replace capital letters with lower case letters
+b<-unique(aa)#finds the vector of unique words
+c<-match(aa,b)#finds the vector of indicies
 freq<-tabulate(c)#indicates the number of times each unique word occurs in the text
 freq_1000<-sort(freq,decreasing=TRUE)#find that frequency of 1000th.
 order_index<-order(freq[freq>=freq_1000[1000]],decreasing=TRUE)
 b_index<-sort(order_index)
 b<-b[b_index]
 
+#step 9
+cap_index<-grep("\\b(?=[A-Z])", a, perl = TRUE)
+cap<-a[cap_index]
+cap_l <- tolower(cap)
+cap_u <- unique(cap_l)
+cap_b <- match(b,cap_u)
+cap_b <- cap_b[-which(is.na(cap_b))]
+cap_d <- cap_u[cap_b] #重复单词
+cap_e <- unique(cap[match(cap_d,cap_l)])
+cap_up <-match(a,cap_e)#finds the vector of indicies
+up_freq <-tabulate(cap_up)# 大写字母在a里面的频率
+cap_low <-match(a,cap_d)
+low_freq <-tabulate(cap_low)# 小写字母在a里面的频率
 
 #STEP 7
 d <- match(a,b) #indices of the bible words in common word vector b
