@@ -21,7 +21,7 @@ return(xxa)
 
 #step 5
 #Separate punctuation marks
-punc<-c(",", ".", ";", "!", ":", "?")#create a vector containing punction marks"(",")","—","-","[","]"
+punc<-c(",", ".", ";", "!", ":", "?")#create a vector containing punctuation marks
 for (p in punc) {
   a<-split_punct(p)
 }
@@ -67,20 +67,17 @@ for (i in 1:length(cap_freq)){
     inn<-match(low_overlap[i],b)
     b[inn]=cap_overlap[i]
   }
-  else{
-    b
-  }
 }
 
 
 #step 8
-set.seed(347)
+set.seed(999)
 wsim = rep("", times = 50) #initializing 50 simulation words vector
 isim = rep(0,times = 50) #initializing indices for 50 simulation words vector
 wsim[1] <- sample(b,1) #randomly choose the first word from b
 isim[1] = which(b == wsim[1]) #identify its index in b
 for (i in 1:49){
-  isim[i+1] = sample(1:length(b), 1, replace = TRUE, prob = A[isim[1],])
+  isim[i+1] = sample(1:length(b), 1, replace = TRUE, prob = A[isim[i],])
   wsim[i+1] = b[isim[i+1]]
 } #generating sequence of words by sampling from pdf P(|i=isim[i])
 cat(wsim) 
