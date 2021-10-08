@@ -1,3 +1,7 @@
+#This work is completed by a group of three:
+#Yenyi Yu s2161093
+#Minke Pan s2160782
+#Yanren Mao s2207399
 setwd("/Users/yuwenyi/SP-workshop")
 a <- scan("1581-0.txt",what="character",skip=156)
 n <- length(a)
@@ -34,14 +38,14 @@ b_index<-sort(order_index)#sort by increasing order
 b<-b[b_index]#create a vector b containing m most common words
 
 #STEP 7
-d <- match(aa,b) #indices of the bible words in common word vector b
+d <- match(aa,b) #indices of bible words in common word vector b
 D <- cbind(d[-length(aa)],d[2:length(aa)]) #remove the first and last entries
 D <- D[-which(is.na(rowSums(D)) == TRUE),] #matrix storing indices of common word pairs
 A <- matrix(0,length(b),length(b)) #initializing transition probility matrix A to be inserted
 for (i in 1:dim(D)[1]){
   A[D[i,1],D[i,2]] = A[D[i,1],D[i,2]] + 1
 } #count the number of each common word pair
-for (i in 1:length(b)){#for every low, standardlize it by dividing by the sum of every entry in the row, using for loop to 
+for (i in 1:length(b)){#standardlize every row，dividing by the sum of all entries in the row
   A[i,]<-A[i,]/rowSums(A)[i]
 }
 
