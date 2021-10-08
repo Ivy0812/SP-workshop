@@ -57,7 +57,7 @@ cap_overlap <- unique(cap_word[match(low_overlap,low_word)])#find the capital ca
 cap_freq <-tabulate(match(a,cap_overlap))#the frequency of words with capital letters in a
 low_freq <-tabulate(match(a,low_overlap))#the frequency of words with lower case letters in a
 
-
+#replace words with lower case letters if the frequency of them is smaller than words starts with capital words
 for (i in 1:length(cap_freq)){
   if (cap_freq[i] >= low_freq[i]){
     inn<-match(low_overlap[i],b)
