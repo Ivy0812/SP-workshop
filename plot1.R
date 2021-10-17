@@ -6,7 +6,7 @@ seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   x <- rep(0,n) ## initialize to susceptible state
   beta <- rlnorm(n,0,0.5); beta <- beta/mean(beta) ## individual infection rates 
   index1 <- order(beta)[1:(0.1*n)]
-  index2 <- sample(n,0.01*n,replace=FALSE)
+  index2 <- sample(n,0.001*n,replace=FALSE)
   x[1:ne] <- 1 ## create some infectives
   S <- E_new <- E_low <- E_random <- S_low <- S_random <-rep(0,nt) ## E <- I <- R <-  set up storage for pop in each state 
   S[1] <- E_new[1] <- n-ne;
@@ -26,11 +26,16 @@ seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   list(S=S,beta=beta,E_new=E_new,E_low=E_low,E_random=E_random) #E=E,I=I,R=R,
 } ## seir
 ep <- seir() ## run simulation 
-ep_new <- (ep$E_new-min(ep$E_new))/(max(ep$E_new)-min(ep$E_new))*100
-ep_low <- (ep$E_low-min(ep$E_low))/(max(ep$E_low)-min(ep$E_low))*100
-ep_random <- (ep$E_random-min(ep$E_random))/(max(ep$E_random)-min(ep$E_random))*100
+
+max <- max(ep$E_new/1000, ep$E_low/100, ep$E_random); min <- min(ep$E_new/1000, ep$E_low/100, ep$E_random)
+
+
+ep_new <- (ep$E_new/1000 - min)/(max - min)*100
+ep_low <- (ep$E_low/100 - min)/(max - min)*100
+ep_random <- (ep$E_random - min)/(max - min)*100
 
 plot(ep_new,ylim=c(0,100),xlab="day",ylab="Incidence", type="l",lwd=2) ## E black
 lines(ep_low,col=4,lwd=2); lines(ep_random, col=2,lwd=2)
-
-  
+abline(h=max(ep_new), v=which(ep_new == max(ep_new)), lty=2, col= "black",lwd=2)
+abline(h=max(ep_low), v=which(ep_low == max(ep_low)), lty=2, col= 4,lwd=2)
+abline(h=max(ep_random), v=which(ep_random == max(ep_random)), lty=2, col= 2,lwd=2)
