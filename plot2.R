@@ -25,17 +25,39 @@ seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   E_new[1] <- ne
   list(S=S,beta=beta,E_new=E_new,E_low=E_low,E_random=E_random) #E=E,I=I,R=R,
 } ## seir
+set.seed(3)
 ep <- seir() ## run simulation 
 
-max <- max(ep$E_new/1000, ep$E_low/100, ep$E_random); min <- min(ep$E_new/1000, ep$E_low/100, ep$E_random)
+n=5.5e+6
+ep_new <- ep$E_new/n*10000
+ep_low <- ep$E_low/n/0.1*10000
+ep_random <- ep$E_random/n/0.001*10000
+
+plot(ep_random,ylim=c(0,max(ep_new,ep_low,ep_random)),xlab="day",ylab="Incidence per 10000 day", type="l",col=4,lwd=2) ## E black
+lines(ep_low,col="grey",lwd=4); lines(ep_new, col="black",lwd=3)
+
+abline(h=max(ep_new), v=which(ep_new == max(ep_new)), lty=2, col="black", lwd=2)
+abline(h=max(ep_low), v=which(ep_low == max(ep_low)), lty=2, col= "grey",lwd=2)
+abline(h=max(ep_random), v=which(ep_random == max(ep_random)), lty=2, col=4,lwd=2)
+
+points(which(ep_new == max(ep_new)),max(ep_new), col="black",cex=1.5,pch=16)
+text(which(ep_new == max(ep_new))+16,max(ep_new)-2, "peak of whole population")
+
+points(which(ep_low == max(ep_low)),max(ep_low), col="grey",cex=1.5,pch=16)
+text(which(ep_low == max(ep_low))+12,max(ep_low)-2, "peak of cautious 10%")
+
+points(which(ep_random == max(ep_random)),max(ep_random), col=4,cex=1.5,pch=16)
+text(which(ep_random == max(ep_random))+20,max(ep_random)-2, "peak of 0.1% random sample")
+#zoom
 
 
-ep_new <- (ep$E_new/1000 - min)/(max - min)*100
-ep_low <- (ep$E_low/100 - min)/(max - min)*100
-ep_random <- (ep$E_random - min)/(max - min)*100
+plot(ep$E_new,ylim=c(0,100000),xlab="day",ylab="Incidence per 10000 day",type="l",col="black",lwd=1) ## E black
 
-plot(ep_new,ylim=c(0,100),xlab="day",ylab="Incidence", type="l",lwd=2) ## E black
-lines(ep_low,col=4,lwd=2); lines(ep_random, col=2,lwd=2)
-abline(h=max(ep_new), v=which(ep_new == max(ep_new)), lty=2, col= "black",lwd=2)
-abline(h=max(ep_low), v=which(ep_low == max(ep_low)), lty=2, col= 4,lwd=2)
-abline(h=max(ep_random), v=which(ep_random == max(ep_random)), lty=2, col= 2,lwd=2)
+for (i in 1:9) {
+  n=5.5e+6
+  ep<-seir()
+  ep_new <- ep$E_new
+  lines(ep_new,col="black",lwd=1)
+  abline(h=max(ep_new), v=which(ep_new == max(ep_new)), lty=2, col="black", lwd=1)
+  }
+  
