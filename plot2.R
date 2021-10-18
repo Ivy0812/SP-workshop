@@ -1,3 +1,5 @@
+#This work is completed by group 12：Yenyi Yu s2161093, Minke Pan s2160782 and Yanren Mao s2207399
+#address of github repo: 
 seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   ## SEIR stochastic simulation model.
   ## n = population size; ni = initially infective; nt = number of days ## gamma = daily prob E -> I; delta = daily prob I -> R;
