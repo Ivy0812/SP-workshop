@@ -1,5 +1,3 @@
-#This work is completed by group 12：Yenyi Yu s2161093, Minke Pan s2160782 and Yanren Mao s2207399
-#address of github repo: 
 seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   ## SEIR stochastic simulation model.
   ## n = population size; ni = initially infective; nt = number of days ## gamma = daily prob E -> I; delta = daily prob I -> R;
@@ -43,14 +41,18 @@ abline(h=max(ep_low), v=which(ep_low == max(ep_low)), lty=2, col= "grey",lwd=2)
 abline(h=max(ep_random), v=which(ep_random == max(ep_random)), lty=2, col=4,lwd=2)
 
 points(which(ep_new == max(ep_new)),max(ep_new), col="black",cex=1.5,pch=16)
-text(which(ep_new == max(ep_new))+16,max(ep_new)-2, "peak of whole population")
+text(which(ep_new == max(ep_new))-12,max(ep_new)+3, "peak of whole population")
 
 points(which(ep_low == max(ep_low)),max(ep_low), col="grey",cex=1.5,pch=16)
-text(which(ep_low == max(ep_low))+12,max(ep_low)-2, "peak of cautious 10%")
+text(which(ep_low == max(ep_low))-12,max(ep_low)+3, "peak of cautious 10%")
 
 points(which(ep_random == max(ep_random)),max(ep_random), col=4,cex=1.5,pch=16)
-text(which(ep_random == max(ep_random))+20,max(ep_random)-2, "peak of 0.1% random sample")
+text(which(ep_random == max(ep_random))-12,max(ep_random)+3, "peak of 0.1% random sample")
 #zoom
+
+legend("top",legend=c("0.1% random","cautious 10%","whole population"),inset=c(0,-0.2),
+       col=c(4,"grey","black"),lty=1,lwd=2,xpd = TRUE,horiz=T,cex=0.9)
+
 
 
 plot(ep$E_new,ylim=c(0,100000),xlab="day",ylab="Incidence per 10000 day",type="l",col="black",lwd=1) ## E black
@@ -61,5 +63,5 @@ for (i in 1:9) {
   ep_new <- ep$E_new
   lines(ep_new,col="black",lwd=1)
   abline(h=max(ep_new), v=which(ep_new == max(ep_new)), lty=2, col="black", lwd=1)
-  }
-  
+}
+
