@@ -9,9 +9,10 @@ seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   #2. the number of new infections among the 10% of the population with the lowest βi values
   #3. the number of new infections in a random sample of 0.1% of the population.
   #So we firstly create list of index with the following features
-  index1 <- order(beta)[1:(0.1*n)]#create a list of index of the number of new infections among the 10% of the population in increasing order using 'order' function  
-  index2 <- sample(n,0.001*n,replace=FALSE)#creat a list of index of the number of new infections in a random sample of 0.1% of the population
+  index1 <- order(beta)[1:(0.1*n)]#create a list of index of the number among the 10% of the population in increasing order using 'order' function  
+  index2 <- sample(n,0.001*n,replace=FALSE)#creat a list of index of the number in a random sample of 0.1% of the population
   x[1:ne] <- 1 ## create some infectives
+  #After creating the index lists, we now going to record the number of new infections 
   S <- E_new <- E_low <- E_random <- S_low <- S_random <-rep(0,nt) ## E <- I <- R <-  set up storage for pop in each state 
   S[1] <- E_new[1] <- n-ne;
   S_low[1] <- sum(x[index1]==0); S_random[1] <- sum(x[index2]==0)
