@@ -1,7 +1,6 @@
 seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   ## SEIR stochastic simulation model.
-  ## n = population size; ni = initially infective; nt = number of days ## gamma = daily prob E -> I; delta = daily prob I -> R;
-  ## bmu = mean beta; bsc = var(beta) = bmu * bsc
+  ## n = population size; ne = initially at E state; nt = number of days ## gamma = daily prob E -> I; delta = daily prob I -> R;
   lambda <- 0.4/n
   x <- rep(0,n) ## initialize to susceptible state
   beta <- rlnorm(n,0,0.5); beta <- beta/mean(beta) ## individual infection rates 
