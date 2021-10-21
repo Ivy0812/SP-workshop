@@ -59,26 +59,26 @@ ep_random <- ep$E_random/n/0.001*10000 ## 0.1% of the population
 plot(ep_random,ylim=c(0,max(ep_new,ep_low,ep_random)),# set up the limit of the graph
      main="Daily Infection Trajectories",xlab="day",ylab="Incidence per 10000 per day", # write the title of the plot and lable axes
      type="l",col="dodgerblue",lwd=3) #using blue line to display the trajectory and assign the width
-abline(h=max(ep_random), v=which(ep_random == max(ep_random)), lty=2, col="dodgerblue",lwd=2)# add straight blue line with certain width to go through peak value and the corresponding line;using max and which to find the peak value and the corresponding day
-points(which(ep_random == max(ep_random)),max(ep_random), col="dodgerblue",cex=1.5,pch=16)# add a point of peak value of the trajectory
-text(140,max(ep_random),  paste("peak at day",which(ep_random == max(ep_random))),col="brown",cex=1) # add explanation of "peak at day x", using which to find the certain day on which peak occurs
+abline(h=max(ep_random), v=mean(which(ep_random == max(ep_random))), lty=2, col="dodgerblue",lwd=2)# add straight blue line with certain width to go through peak value and the corresponding line;using max and which to find the peak value and the corresponding day
+points(mean(which(ep_random == max(ep_random))),max(ep_random), col="brown",cex=1.5,pch=16)# add a point of peak value of the trajectory
+text(mean(which(ep_random == max(ep_random)))-2,max(ep_random)-6, mean(which(ep_random == max(ep_random))),col="brown",cex=1.2) # add explanation of "peak at day x", using which to find the certain day on which peak occurs
 
 # Draw the trajectory of new infections with peak among the 10% of the population with the lowest βi values, the code is similar to above
 lines(ep_low,col="grey",lwd=4)
-abline(h=max(ep_low), v=which(ep_low == max(ep_low)), lty=2, col= "grey",lwd=2)
-points(which(ep_low == max(ep_low)),max(ep_low), col="grey",cex=1.5,pch=16)
-text(140,max(ep_low), paste("peak at day",which(ep_low == max(ep_low))),col="brown",cex=1)
+abline(h=max(ep_low), v=mean(which(ep_low == max(ep_low))), lty=2, col= "grey",lwd=2)
+points(mean(which(ep_low == max(ep_low))),max(ep_low), col="brown",cex=1.5,pch=16)
+text(mean(which(ep_low == max(ep_low)))+2,max(ep_low)+6, mean(which(ep_low == max(ep_low))),col="brown",cex=1.2)
 
 # Draw the trajectory of new infections with peak among the whole population, the code is similar to above
 lines(ep_new, col="black",lwd=3)
-abline(h=max(ep_new), v=which(ep_new == max(ep_new)), lty=2, col="black", lwd=2)
-points(which(ep_new == max(ep_new)),max(ep_new), col="black",cex=1.5,pch=16)
-text(140,max(ep_new), paste("peak at day",which(ep_new == max(ep_new))),col="brown",cex=1)
+abline(h=max(ep_new), v=mean(which(ep_new == max(ep_new))), lty=2, col="black", lwd=2)
+points(mean(which(ep_new == max(ep_new))),max(ep_new), col="brown",cex=1.5,pch=16)
+text(mean(which(ep_new == max(ep_new)))+2,max(ep_new)+6, mean(which(ep_new == max(ep_new))),col="brown",cex=1.2)
 #zoom  
 
 # Add legend indicating different groups to the plot, using list() to adjust the position of the legend to left of the plot
-legend(list(x=2,y=140),legend=c("0.1% random","cautious 10%","whole population"),
-       col=c("dodgerblue","grey","black"),lty=1,lwd=2,cex=0.9)
+legend(list(x=2,y=140),legend=c("0.1% random","cautious 10%","whole population","day of peak"),
+       col=c("dodgerblue","grey","black","brown"),lty=1,pch=c(NA,NA,NA,16),lwd=2,cex=0.9)
 
 # Create 10 replicate simulations 
 new <- low <- random <- list()
@@ -92,7 +92,7 @@ for (i in 1:10) {
 
 # Plot 10 repeated simulations of 3 groups in one plot and display the variability
 # Firstly, draw trajectory for 'new infections each day among the whole population'
-par(mfrow=c(3,1),mar=c(4,4,1,1),oma=c(0,0,0,0)) # Set margin and outer margin of the graph
+par(mfrow=c(3,1),mar=c(4,4,4,1),oma=c(0,0,0,0)) # Set margin and outer margin of the graph
 plot(new[[1]],xlab="day",ylab="Incidence per day", # write title and label axex; Draw trajectory by lines
      main = "Variability of 10 Repeated Simulations",
      type="l",col="black",lwd=2) #
