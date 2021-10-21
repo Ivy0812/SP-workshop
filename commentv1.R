@@ -39,7 +39,7 @@ seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
     S_low[i]<- sum(x[index1]==0)# assign the number of susceptible people each day among the 10% of the population with the lowest βi values
     S_random[i]<- sum(x[index2]==0)# assign the number of susceptible people each day in a random sample of 0.1% of the population
     E_new[i]<- S[i-1]-S[i]# intepreting the number of new infections each day among the whole population by substracting the number of the day before from the number of current storage group
-    E_low[i]<- S_low[i-1]-S_low[i]# intepreting the number of new infections each day among among the 10% of the population with the lowest βi values by substracting the number of the day before from the number of current storage group
+    E_low[i]<- S_low[i-1]-S_low[i]# intepreting the number of new infections each day among the 10% of the population with the lowest βi values by substracting the number of the day before from the number of current storage group
     E_random[i]<- S_random[i-1]-S_random[i]# Similar to above process
   }
   E_new[1] <- ne# initialize
@@ -55,28 +55,32 @@ ep_new <- ep$E_new/n*10000 ## whole population
 ep_low <- ep$E_low/n/0.1*10000 ## 10% of the population (with the lowest βi values)
 ep_random <- ep$E_random/n/0.001*10000 ## 0.1% of the population
 
+# Using plot function to plot the trajectory of new infections with peak in a random sample of 0.1% of the population
+plot(ep_random,ylim=c(0,max(ep_new,ep_low,ep_random)),# set up the limit of the graph
+     main="Daily Infection Trajectories",xlab="day",ylab="Incidence per 10000 per day", # write the title of the plot and lable axes
+     type="l",col="dodgerblue",lwd=3) #using blue line to display the trajectory and assign the width
+abline(h=max(ep_random), v=which(ep_random == max(ep_random)), lty=2, col="dodgerblue",lwd=2)# add straight blue line with certain width to go through peak value and the corresponding line;using max and which to find the peak value and the corresponding day
+points(which(ep_random == max(ep_random)),max(ep_random), col="dodgerblue",cex=1.5,pch=16)# add a point of peak value of the trajectory
+text(140,max(ep_random),  paste("peak at day",which(ep_random == max(ep_random))),col="brown",cex=1) # add explanation of "peak at day x", using which to find the certain day on which peak occurs
 
-plot(ep_random,ylim=c(0,max(ep_new,ep_low,ep_random)),
-     main="Daily Infection Trajectories",xlab="day",ylab="Incidence per 10000 per day", 
-     type="l",col="dodgerblue",lwd=3) 
-abline(h=max(ep_random), v=which(ep_random == max(ep_random)), lty=2, col="dodgerblue",lwd=2)
-points(which(ep_random == max(ep_random)),max(ep_random), col="dodgerblue",cex=1.5,pch=16)
-text(140,max(ep_random),  paste("peak at day",which(ep_random == max(ep_random))),col="brown",cex=1)
-
+# Draw the trajectory of new infections with peak among the 10% of the population with the lowest βi values, the code is similar to above
 lines(ep_low,col="grey",lwd=4)
 abline(h=max(ep_low), v=which(ep_low == max(ep_low)), lty=2, col= "grey",lwd=2)
 points(which(ep_low == max(ep_low)),max(ep_low), col="grey",cex=1.5,pch=16)
 text(140,max(ep_low), paste("peak at day",which(ep_low == max(ep_low))),col="brown",cex=1)
 
+# Draw the trajectory of new infections with peak among the whole population, the code is similar to above
 lines(ep_new, col="black",lwd=3)
 abline(h=max(ep_new), v=which(ep_new == max(ep_new)), lty=2, col="black", lwd=2)
 points(which(ep_new == max(ep_new)),max(ep_new), col="black",cex=1.5,pch=16)
 text(140,max(ep_new), paste("peak at day",which(ep_new == max(ep_new))),col="brown",cex=1)
 #zoom  
 
+# Add legend indicating different groups to the plot, using list() to adjust the position of the legend to left of the plot
 legend(list(x=2,y=140),legend=c("0.1% random","cautious 10%","whole population"),
        col=c("dodgerblue","grey","black"),lty=1,lwd=2,cex=0.9)
 
+# Create 10 replicate simulations 
 new <- low <- random <- list()
 for (i in 1:10) {
   n=5.5e+6
@@ -86,20 +90,22 @@ for (i in 1:10) {
   random[[i]]<- ep$E_random
 }
 
-
-par(mfrow=c(3,1),mar=c(4,4,1,1),oma=c(0,0,0,0))
-plot(new[[1]],xlab="day",ylab="Incidence per day",
+# Plot 10 repeated simulations of 3 groups in one plot and display the variability
+# Firstly, draw trajectory for 'new infections each day among the whole population'
+par(mfrow=c(3,1),mar=c(4,4,1,1),oma=c(0,0,0,0)) # Set margin and outer margin of the graph
+plot(new[[1]],xlab="day",ylab="Incidence per day", # write title and label axex; Draw trajectory by lines
      main = "Variability of 10 Repeated Simulations",
      type="l",col="black",lwd=2) #
-legend("topleft","Whole Population",text.col="red",lty=0,lwd=2,cex=0.9,bty ="n")
-max_new = mean(which(new[[1]]==max(new[[1]])))
-for (i in 2:10) {
-  lines(new[[i]],col="black",lwd=2)
+legend("topleft","Whole Population",text.col="red",lty=0,lwd=2,cex=0.9,bty ="n")# add legend
+max_new = mean(which(new[[1]]==max(new[[1]])))# Find the peak and using mean function just in case there are more than one identical peak values
+for (i in 2:10) {# loop
+  lines(new[[i]],col="black",lwd=2)# draw new infections among whole population
   max_new  = max_new + mean(which(new[[i]]==max(new[[i]])))
 }
-abline(v=max_new/10, lty=2, col="red", lwd=2)
-axis(side=1, at=max_new/10,labels=max_new/10,col ="red", col.axis="red")
+abline(v=max_new/10, lty=2, col="red", lwd=2)# add line to indicate the peak
+axis(side=1, at=max_new/10,labels=max_new/10,col ="red", col.axis="red")#make axes and lable them 
 
+# Secondly, draw trajectory for 'the 10% of the population with the lowest βi values', similar process as above
 plot(low[[1]],xlab="day",ylab="Incidence per day", type="l",col="grey",lwd=2) ## E black
 legend("topleft","Cautious 10%",text.col="red",lty=0,lwd=2,cex=0.9,bty ="n")
 max_low = mean(which(low[[1]]==max(low[[1]])))
@@ -110,6 +116,7 @@ for (i in 2:10) {
 abline(v=max_low/10, lty=2, col="red", lwd=2)
 axis(side=1, at=max_low/10,labels=max_low/10,col="red",col.axis="red")
 
+# Finally, draw trajectory for 'a random sample of 0.1% of the population', similar process as above
 plot(random[[1]],xlab="day",ylab="Incidence per day", type="l",col="dodgerblue",lwd=2) #
 legend("topleft","0.1% Random",text.col="red",lty=0,lwd=2,cex=0.9,bty ="n")
 max_random = mean(which(random[[1]]==max(random[[1]])))
