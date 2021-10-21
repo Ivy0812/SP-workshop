@@ -1,19 +1,29 @@
 seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
-  ## SEIR stochastic simulation model.
-  ## n = population size; ne = initially at E state; nt = number of days ## gamma = daily prob E -> I; delta = daily prob I -> R;
+  # SEIR stochastic simulation model.
+  # n = population size; ne = initially at E state; nt = number of days 
+  # gamma = daily prob E -> I; delta = daily prob I -> R
+  # expect the function outputs the simulation
+
   lambda <- 0.4/n
-  x <- rep(0,n) ## initialize to susceptible state
-  beta <- rlnorm(n,0,0.5); beta <- beta/mean(beta) ## individual infection rates 
-  #Now we want to find:
-  #1. the number of new infections each day
-  #2. the number of new infections among the 10% of the population with the lowest βi values
-  #3. the number of new infections in a random sample of 0.1% of the population.
-  #So we firstly create list of index with the following features
-  index1 <- order(beta)[1:(0.1*n)]#create a list of index of the number among the 10% of the population in increasing order using 'order' function  
-  index2 <- sample(n,0.001*n,replace=FALSE)#creat a list of index of the number in a random sample of 0.1% of the population
-  x[1:ne] <- 1 ## create some infectives
-  #After creating the index lists, we now going to record the number of new infections 
-  S <- E_new <- E_low <- E_random <- S_low <- S_random <-rep(0,nt) ## E <- I <- R <-  set up storage for pop in each state 
+  x <- rep(0,n) # initialize to susceptible state
+  beta <- rlnorm(n,0,0.5); beta <- beta/mean(beta) # individual infection rates and will use it to generate βi later
+
+  # Now we want to find:
+  # 1. the number of new infections each day
+  # 2. the number of new infections among the 10% of the population with the lowest βi values
+  # 3. the number of new infections in a random sample of 0.1% of the population.
+  # So we firstly create list of index of the following features
+  index1 <- order(beta)[1:(0.1*n)]# create a list of index of the number among the 10% of the population in increasing order using 'order' function  
+  index2 <- sample(n,0.001*n,replace=FALSE)# create a list of index of the number in a random sample of 0.1% of the population
+  x[1:ne] <- 1 # create some infectives
+
+  # After creating the index lists, we now going to record the number of new infections of 3 different groups
+  # (each day of whole population, 10% of the population with the lowest βi values, a random sample of 0.1% of the population)
+  # by subtracting the number of elements in formal infection group from the number of elements in current infection group.
+  # We need to calculate the number of elements of different groups,
+  # computing the transmission process given in the context 
+  # Here are the detailed and concrete steps
+  S <- E_new <- E_low <- E_random <- S_low <- S_random <-rep(0,nt) ##set up storage for pop in each state 
   S[1] <- E_new[1] <- n-ne;
   S_low[1] <- sum(x[index1]==0); S_random[1] <- sum(x[index2]==0)
   E_low[1] <- sum(x[index1]==1); E_random[1] <- sum(x[index2]==1) ## initialize
