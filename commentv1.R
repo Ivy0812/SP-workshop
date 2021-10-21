@@ -21,37 +21,44 @@ seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   # (each day of whole population, 10% of the population with the lowest βi values, a random sample of 0.1% of the population)
   # by subtracting the number of elements in formal infection group from the number of elements in current infection group.
   # We need to calculate the number of elements of different groups,
-  # computing the transmission process given in the context 
+  # computing the transmission process given in the context and setting up storage for each state
   # Here are the detailed and concrete steps
-  S <- E_new <- E_low <- E_random <- S_low <- S_random <-rep(0,nt) ##set up storage for pop in each state 
-  S[1] <- E_new[1] <- n-ne;
-  S_low[1] <- sum(x[index1]==0); S_random[1] <- sum(x[index2]==0)
-  E_low[1] <- sum(x[index1]==1); E_random[1] <- sum(x[index2]==1) ## initialize
-  for (i in 2:nt) { ## loop over days
-    u <- runif(n) ## uniform random deviates
-    Iota<-sum(beta[x==2])
-    x[x==2&u<delta] <- 3 ## I -> R with prob delta 
-    x[x==1&u<gamma] <- 2 ## E -> I with prob gamma 
-    x[x==0&u<lambda*beta*Iota] <- 1 ## S -> E with prob beta*I[i-1] 
-    S[i] <- sum(x==0) #; E[i] <- sum(x==1); I[i] <- sum(x==2); R[i] <- sum(x==3)
-    S_low[i]<- sum(x[index1]==0); S_random[i]<- sum(x[index2]==0)
-    E_new[i]<- S[i-1]-S[i]; E_low[i]<- S_low[i-1]-S_low[i]; E_random[i]<- S_random[i-1]-S_random[i]
+  S <- E_new <- E_low <- E_random <- S_low <- S_random <-rep(0,nt) # set up storage for pop in each state 
+  S[1] <- E_new[1] <- n-ne;# Using sum function to count the number of elements at 0-suscpetible state and initialize the number of people at susceptible state, removing the 10 E-state people
+  S_low[1] <- sum(x[index1]==0)# Similarly, initialize the number of peiple at susceptible state among the 10% of the population with the lowest βi values
+  S_random[1] <- sum(x[index2]==0)# initialize the number of people at susceptible state in a random sample of 0.1% of the population
+  E_low[1] <- sum(x[index1]==1)# initialize the number of people at 1-exposed state among the 10% of the population with the lowest βi values
+  E_random[1] <- sum(x[index2]==1) # initialize the number of people at exposed state in a random sample of 0.1% of the population
+  for (i in 2:nt) { # loop over days
+    u <- runif(n) # uniform random deviates
+    Iota<-sum(beta[x==2])# create the set of all currently 2-infected people
+    x[x==2&u<delta] <- 3 # I -> R with prob delta 
+    x[x==1&u<gamma] <- 2 # E -> I with prob gamma 
+    x[x==0&u<lambda*beta*Iota] <- 1 # S -> E with prob lambda*beta*Iota 
+    S[i] <- sum(x==0)# assign the number of susceptible people each day of the whole population
+    S_low[i]<- sum(x[index1]==0)# assign the number of susceptible people each day among the 10% of the population with the lowest βi values
+    S_random[i]<- sum(x[index2]==0)# assign the number of susceptible people each day in a random sample of 0.1% of the population
+    E_new[i]<- S[i-1]-S[i]# intepreting the number of new infections each day among the whole population by substracting the number of the day before from the number of current storage group
+    E_low[i]<- S_low[i-1]-S_low[i]# intepreting the number of new infections each day among among the 10% of the population with the lowest βi values by substracting the number of the day before from the number of current storage group
+    E_random[i]<- S_random[i-1]-S_random[i]# Similar to above process
   }
-  E_new[1] <- ne
+  E_new[1] <- ne# initialize
   list(E_new=E_new,E_low=E_low,E_random=E_random) #E=E,I=I,R=R,
 } ## seir
 
 set.seed(3)
-ep <- seir() ## run simulation 
+ep <- seir() # run simulation 
 
+# Before constructing the plot, we standardize each trajectory by dividing by the size
 n=5.5e+6
-ep_new <- ep$E_new/n*10000
-ep_low <- ep$E_low/n/0.1*10000
-ep_random <- ep$E_random/n/0.001*10000
+ep_new <- ep$E_new/n*10000 ## whole population
+ep_low <- ep$E_low/n/0.1*10000 ## 10% of the population (with the lowest βi values)
+ep_random <- ep$E_random/n/0.001*10000 ## 0.1% of the population
+
 
 plot(ep_random,ylim=c(0,max(ep_new,ep_low,ep_random)),
      main="Daily Infection Trajectories",xlab="day",ylab="Incidence per 10000 per day", 
-     type="l",col="dodgerblue",lwd=3) #
+     type="l",col="dodgerblue",lwd=3) 
 abline(h=max(ep_random), v=which(ep_random == max(ep_random)), lty=2, col="dodgerblue",lwd=2)
 points(which(ep_random == max(ep_random)),max(ep_random), col="dodgerblue",cex=1.5,pch=16)
 text(140,max(ep_random),  paste("peak at day",which(ep_random == max(ep_random))),col="brown",cex=1)
