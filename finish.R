@@ -94,7 +94,7 @@ text(mean(which(ep_new == max(ep_new)))+2,max(ep_new)+6, mean(which(ep_new == ma
 
 # classify different groups by adding legend
 legend(list(x=2,y=170),legend=c("0.1% random","cautious 10%","whole population","day of peak"),
-       col=c("dodgerblue","grey","black","brown"),lty=1,pch=c(NA,NA,NA,16),lwd=2,cex=0.9)
+       col=c("dodgerblue","grey","black","brown"),lty=1,pch=c(NA,NA,NA,16),lwd=2,cex=0.9,bty="n")
 
 # Step 4: 10 repeated simulations
 # store the corresponding values at each day in list
@@ -114,9 +114,8 @@ for (i in 1:10) {
 # Step 5: Visualize(zoom)
 # There are 3 plots showing the results of 10 repeated simulations of each group respectively.
 # plot and draw the first trajectory for new infections each day among the whole population
-par(mfrow=c(2,2)) # Set margin and outer margin of the graph ,mar=c(4,4,4,1),oma=c(0,0,0,0)
+par(mfrow=c(2,2), mar=c(4,4,1,1),oma = c(0, 0, 2, 0)) # Set margin and outer margin of the graph
 plot(new[[1]],xlab="day",ylab="Incidence per 10000 per day", 
-     main = "Variability of 10 Repeated Simulations",
      type="l",col="black",lwd=2) 
 legend("topleft","Whole Population",text.col="red",lty=0,lwd=2,cex=0.9,bty ="n")# add legend
 max_new = mean(which(new[[1]]==max(new[[1]])))# Find and store the day of first peak value occurs
@@ -125,7 +124,7 @@ for (i in 2:10) {# loop
   max_new  = max_new + mean(which(new[[i]]==max(new[[i]]))) #sum the day on which peak values occurs of 10 simulations
 }
 abline(v=max_new/10, lty=2, col="red", lwd=2)# average the day of total value and add a guideline to indicate
-axis(side=1, at=max_new/10,labels=max_new/10,col ="red", col.axis="red")# label the average value by axis
+axis(side=3, at=max_new/10,labels=max_new/10,col ="red", col.axis="red")# label the average value by axis
 
 # draw trajectory for a random sample of 0.1% of the population as above
 plot(random[[1]],xlab="day",ylab="Incidence per 10000 per day", type="l",col="dodgerblue",lwd=2) 
@@ -136,7 +135,7 @@ for (i in 2:10) {
   max_random = max_random + mean(which(random[[i]]==max(random[[i]])))
 }
 abline(v=max_random/10, lty=2, col="red", lwd=2)
-axis(side=1, at=max_random/10,labels=max_random/10,col="red",col.axis="red")
+axis(side=3, at=max_random/10,labels=max_random/10,col="red",col.axis="red")
 
 # draw trajectory for the 10% of the population similarly
 plot(low[[1]],xlab="day",ylab="Incidence per 10000 per day", type="l",col="grey",lwd=2,) 
@@ -147,13 +146,16 @@ for (i in 2:10) {
   max_low = max_low + mean(which(low[[i]]==max(low[[i]])))
 }
 abline(v=max_low/10, lty=2, col="red", lwd=2)
-axis(side=1, at=max_low/10,labels=max_low/10,col="red",col.axis="red")
+axis(side=3, at=max_low/10,labels=max_low/10,col="red",col.axis="red")
 
 #mean
 plot(peak_whole,ylim=c(0,max(peak_whole,peak_low,peak_random)),xlab="day",ylab="peak incidence per 10000 per day", type="l",col="black",lwd=2) 
 lines(peak_low,col="grey",lwd=2); lines(peak_random,col="dodgerblue",lwd=2);
+
+
 legend("bottom",legend=c("0.1% random","cautious 10%","whole population"),
        bty="n",col=c("dodgerblue","grey","black"),lty=1,lwd=2,cex=0.5, horiz=TRUE)
+mtext("Variability of 10 Repeated Simulations", side = 3, line = 0, outer = T)
 
 # Step 6: Comment
 # People who choose to download ZOE app are more cautious about Covid than average.
