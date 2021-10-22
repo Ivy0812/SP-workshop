@@ -1,6 +1,33 @@
 # This work is completed by group 12：Wenyi Yu s2161093, Minke Pan s2160782 and Yanren Mao s2207399
 # address of github repo: https://github.com/Ivy0812/SP-workshop.git
 
+# Overview
+# In order to solve these 2 questions:
+# 1.What do the daily infection trajectories look like for the population with the lowest individual transmission probabilities?
+# 2.How do they compare to the infection trajectories for the whole population?
+
+# Firstly we create a SEIR (Susceptible-Exposed-Infective-Recovered) models.
+# Almost everyone starts out susceptible, and then move to the exposed class 
+# according to their daily probability of being infected by someone in the infected class. 
+# In particular suppose that the ith person in the whole population has a relative contact rate with other people of βi.
+# Each day an uninfected person, j, has a probability λ*βj*sum(βi) of being infected, and entering the exposed (E) state.
+# People move from the exposed to infected class with a constant probability, gamma , each day, 
+# and move from the infected to the R class with a different constant probability, delta.
+# Suppose that we want to simulate from this stochastic SEIR model, maintaining a record of the new infections in the different groups over time. 
+# We produce a function that takes parameter values and control constants as inputs, and outputs vectors of the new infections of the whole, 10% and 0.1% populations over time.
+# We create a single vector maintaining an integer state indicating each individual’s current status 0 for S, 1 for E, 2 for I and 3 for R.
+# The individual states are then updated daily according to the model, and the numbers in each state summed.
+
+# Secondly, We standardize each trajectory by dividing their population size to plot them on the same plot.
+# Then we produce a plot showing how the daily infection trajectories compare between 
+# the whole population, the ‘cautious 10%’ and the 0.1% random sample 
+# and also provide labels giving the day on which each trajectory peaks.
+
+# Finally we write code to visualize the variability in the results from running 10 replicate simulations，
+# and record the 10 daily infection trajectories of each group by plotting 3 plots respectively.
+# The last plot shows the difference of the day on which the peak value occurs between whole population, the ‘cautious 10%’ and the 0.1% random sample. 
+
+
 # Step 1: Simulation
 seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   # SEIR stochastic simulation model.
@@ -154,7 +181,8 @@ axis(side=3, at=max_low/10,labels=max_low/10,col="red",col.axis="red")
 
 # There are 3 plots showing trajectories of peak values of 10 repeated simulations
 # Plot and draw the first trajectory for peak values of new infections each day among the whole population
-plot(peak_whole,ylim=c(0,max(peak_whole,peak_low,peak_random)),xlab="day",ylab="peak incidence per 10000 per day", type="l",col="black",lwd=2)# set up the y-axis limit of the graph and label axes
+plot(peak_whole,ylim=c(0,max(peak_whole,peak_low,peak_random)), # set up the y-axis limit of the graph and label axes
+     xlab="simulation",ylab="peak incidence per 10000 per day", type="l",col="black",lwd=2)
 # Using 'lines' to draw trajectory for the 10% of the population & a random sample of 0.1% of the population
 lines(peak_low,col="grey",lwd=2); lines(peak_random,col="dodgerblue",lwd=2);
 legend("bottom",legend=c("0.1% random","cautious 10%","whole population"),
@@ -163,10 +191,6 @@ mtext("Variability of 10 Repeated Simulations", side = 3, line = 0, outer = T)# 
 
 
 # Step 6: Comment
-# People who choose to download ZOE app are more cautious about Covid than average.
-# The ZOE sample is with lower transmission probabilities. 
-# The general trend of the Incidence of ZOE sample and whole population are similar: 
-# the incidence rates increase at first until they reach the peak value and then decrease.
-# However, peak values and the days on which peak values occur are different, 
-# The ZOE sample's peak value day will occur later 
-# with generally smaller peak value than the whole population.
+# People who choose to download ZOE app are more cautious about Covid than average. The ZOE sample is with lower transmission probabilities. 
+# The general trend of the Incidence of ZOE sample and whole population are similar: the incidence rates increase at first until they reach the peak value and then decrease.
+# However, peak values and the days on which peak values occur are different: the ZOE sample's peak value day will occur later with generally smaller peak value than the whole population.
