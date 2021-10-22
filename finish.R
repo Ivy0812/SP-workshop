@@ -13,7 +13,7 @@ seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   beta <- rlnorm(n,0,0.5); beta <- beta/mean(beta) # individual infection rates and will use it to generate βi later
 
   # Now we want to find:
-  # 1. the number of new infections each day
+  # 1. the number of new infections each day among the whole population
   # 2. the number of new infections among the 10% of the population with the lowest βi values
   # 3. the number of new infections in a random sample of 0.1% of the population.
 
@@ -25,7 +25,7 @@ seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
   # 1.each day of whole population
   # 2.10% of the population with the lowest βi values
   # 3.a random sample of 0.1% of the population
-  # We calculate the new infections of each group by computing the decreases of the susceptible state between 2 consecutive days.
+  # We calculate the new infections of each group by computing the decreases of the susceptible state between 2 consecutive days
   # Here are the simulation of the transmission process
   
   S <- E_new <- E_low <- E_random <- S_low <- S_random <-rep(0,nt) # set up storage for pop in each state 
@@ -56,6 +56,7 @@ seir <- function(n=5.5e+6,ne=10,nt=150,gamma=1/3,delta=1/5) {
 set.seed(3)
 ep <- seir() # run simulation 
 
+
 # Step 2: Standardize
 # standardize each trajectory by calculating the incidence per 10000 people per day
 # Incidence is calculated by dividing their size
@@ -63,6 +64,7 @@ n=5.5e+6
 ep_new <- ep$E_new/n*10000 ## whole population
 ep_low <- ep$E_low/n/0.1*10000 ## 10% of the population
 ep_random <- ep$E_random/n/0.001*10000 ## 0.1% of the population
+
 
 # Step 3: Plot daily trajectory of new infections 
 # plot and draw the trajectory of new infections with peak in a random sample of 0.1% of the population
@@ -96,8 +98,9 @@ text(mean(which(ep_new == max(ep_new)))+2,max(ep_new)+6, mean(which(ep_new == ma
 legend(list(x=2,y=170),legend=c("0.1% random","cautious 10%","whole population","day of peak"),
        col=c("dodgerblue","grey","black","brown"),lty=1,pch=c(NA,NA,NA,16),lwd=2,cex=0.9,bty="n")
 
+
 # Step 4: 10 repeated simulations
-# store the corresponding values at each day in list
+# store the corresponding infection and peak values at each day in list
 new <- low <- random <- list() 
 peak_whole <- peak_low <- peak_random <-rep(0,10)
 for (i in 1:10) {
@@ -111,10 +114,11 @@ for (i in 1:10) {
   peak_random[i]<-max(random[[i]])
 }
 
+
 # Step 5: Visualize(zoom)
 # There are 3 plots showing the results of 10 repeated simulations of each group respectively.
 # plot and draw the first trajectory for new infections each day among the whole population
-par(mfrow=c(2,2), mar=c(4,4,1,1),oma = c(0, 0, 2, 0)) # Set margin and outer margin of the graph
+par(mfrow=c(2,2), mar=c(4,4,1,1),oma = c(0, 0, 2, 0)) # set margin and outer margin of the graph and create 4 regional graphs inside
 plot(new[[1]],xlab="day",ylab="Incidence per 10000 per day", 
      type="l",col="black",lwd=2) 
 legend("topleft","Whole Population",text.col="red",lty=0,lwd=2,cex=0.9,bty ="n")# add legend
@@ -148,14 +152,15 @@ for (i in 2:10) {
 abline(v=max_low/10, lty=2, col="red", lwd=2)
 axis(side=3, at=max_low/10,labels=max_low/10,col="red",col.axis="red")
 
-#mean
-plot(peak_whole,ylim=c(0,max(peak_whole,peak_low,peak_random)),xlab="day",ylab="peak incidence per 10000 per day", type="l",col="black",lwd=2) 
+# There are 3 plots showing trajectories of peak values of 10 repeated simulations
+# Plot and draw the first trajectory for peak values of new infections each day among the whole population
+plot(peak_whole,ylim=c(0,max(peak_whole,peak_low,peak_random)),xlab="day",ylab="peak incidence per 10000 per day", type="l",col="black",lwd=2)# set up the y-axis limit of the graph and label axes
+# Using 'lines' to draw trajectory for the 10% of the population & a random sample of 0.1% of the population
 lines(peak_low,col="grey",lwd=2); lines(peak_random,col="dodgerblue",lwd=2);
-
-
 legend("bottom",legend=c("0.1% random","cautious 10%","whole population"),
-       bty="n",col=c("dodgerblue","grey","black"),lty=1,lwd=2,cex=0.5, horiz=TRUE)
-mtext("Variability of 10 Repeated Simulations", side = 3, line = 0, outer = T)
+       bty="n",col=c("dodgerblue","grey","black"),lty=1,lwd=2,cex=0.5, horiz=TRUE)# add legend 
+mtext("Variability of 10 Repeated Simulations", side = 3, line = 0, outer = T)# add main title of the whole plot
+
 
 # Step 6: Comment
 # People who choose to download ZOE app are more cautious about Covid than average.
