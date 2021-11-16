@@ -54,7 +54,7 @@ bfgs <- function (theta,f,...,tol=1e-5,fscale=1,maxit=100){
 }
 
 rb <- function(theta,getg=FALSE,k=10) {
-  ## Rosenbrock objective function, suitable for use by ’bfgs�?
+  ## Rosenbrock objective function, suitable for use by ’bfgs???
   z <- theta[1]; x <- theta[2]
   f <- k*(z-x^2)^2 + (1-x)^2 + 1
   if (getg) {
