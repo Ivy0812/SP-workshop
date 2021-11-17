@@ -27,21 +27,29 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){
   }
  
   Bk1 <- diag(length(theta))
-  eps <- 1e-7
   for (iter in 1:maxit){
-    sk <- delta <- - Bk1 %*% first(theta,f,...)
-    theta1 <- theta + delta
-    yk <- first(theta1,f,...) - first(theta,f,...)
-    pk <- drop(1/t(sk) %*% yk)
-    A <- Bk1 - pk*sk %*% (t(yk) %*% Bk1)
-    Bk1 <- A - pk*(A %*% yk) %*% t(sk) + pk*sk %*% t(sk)
-
     if (max(abs(first(theta,f,...))) < (abs(f(theta,...))+fscale)*tol) {
       break
     } else{
+      delta <- - Bk1 %*% first(theta,f,...)
+      while ((is.infinite(f(theta+delta,...))) | (f(theta,...) < f(theta+delta,...))){
+        delta=delta/2
+      }
       # 2. If the step fails to reduce the objective but convergence has not occurred
-      if (f(theta,...) < f(theta1,...)) stop("")
-      theta <- theta1
+      k <- 0.1
+      while (t(first(theta+delta,f,...)) %*% delta < 0.9 * t(first(theta,f,...)) %*% delta){
+        delta = 1 + k * delta
+          if ((is.infinite(f(theta+delta,...))) | (f(theta,...) < f(theta1,...))) {
+            k <- k / 2
+            if (k < 0.001) stop("   ")
+          }
+      }
+        
+        yk <- first(theta + delta,f,...) - first(theta,f,...)
+        pk <- drop(1/t(delta) %*% yk)
+        A <- Bk1 - pk*delta %*% (t(yk) %*% Bk1)
+        Bk1 <- A - pk*(A %*% yk) %*% t(delta) + pk*delta %*% t(delta)
+        theta <- theta + delta
     }
 }
 
