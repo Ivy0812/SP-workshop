@@ -1,8 +1,11 @@
 
 
 bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){
-  if (is.infinite(f(theta,...)))  stop("   ")
-  if (is.null(attributes(f(theta,...)))){
+  
+  if (!(is.finite(f(theta,...))))  stop("   ")
+  
+  
+  if (is.null(attributes(f(theta,...), "gradient"))){
     first <- function(theta,f,...) {
       fd <- th0 <- theta
       nll0 <- f(theta,...) ## nll at th0
@@ -13,48 +16,49 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){
         nll1 <- f(th1,...) ## compute resulting nll
         fd[i] <- (nll1 - nll0)/eps ## approximate -dl/dth[i]
       }
-    fd
+      fd
     }
-  } else{
+  } 
+  else{
     first <- function(theta,f,...) {
-    fd <- attr(f(theta,...),"gradient")
-    fd
+      fd <- attr(f(theta,...),"gradient")
+      fd
     }
   }
+  
+  
   # 1. If the objective or derivatives are not finite at the initial theta
   for (i in first(theta,f,...)){
-    if (is.infinite(i)) stop("   ")
+    if (!(is.finite(i))) stop("   ")
   }
  
+  
   Bk1 <- diag(length(theta))
   for (iter in 1:maxit){
-    if (max(abs(first(theta,f,...))) < (abs(f(theta,...))+fscale)*tol) {
-      break
-    } else{
+    if (max(abs(first(theta,f,...))) < (abs(f(theta,...))+fscale)*tol) break
+    else{
       delta <- - Bk1 %*% first(theta,f,...)
-      while ((is.infinite(f(theta+delta,...))) | (f(theta,...) < f(theta+delta,...))){
-        delta=delta/2
-      }
+      while (!(is.finite(f(theta+delta,...))) | (f(theta,...) < f(theta+delta,...))) delta=delta/2
       # 2. If the step fails to reduce the objective but convergence has not occurred
       k <- 0.1
       while (t(first(theta+delta,f,...)) %*% delta < 0.9 * t(first(theta,f,...)) %*% delta){
         delta = 1 + k * delta
-          if ((is.infinite(f(theta+delta,...))) | (f(theta,...) < f(theta1,...))) {
+        if (!(is.finite(f(theta+delta,...))) | (f(theta,...) < f(theta1,...))) {
             k <- k / 2
             if (k < 0.001) stop("   ")
-          }
+        }
       }
         
-        yk <- first(theta + delta,f,...) - first(theta,f,...)
-        pk <- drop(1/t(delta) %*% yk)
-        A <- Bk1 - pk*delta %*% (t(yk) %*% Bk1)
-        Bk1 <- A - pk*(A %*% yk) %*% t(delta) + pk*delta %*% t(delta)
-        theta <- theta + delta
+      yk <- first(theta + delta,f,...) - first(theta,f,...)
+      pk <- drop(1/t(delta) %*% yk)
+      A <- Bk1 - pk*delta %*% (t(yk) %*% Bk1)
+      Bk1 <- A - pk*(A %*% yk) %*% t(delta) + pk*delta %*% t(delta)
+      theta <- theta + delta
     }
-}
+  }
 
-  # 3. If maxit is reached without convergence. ä¸‘
-  if ((iter == maxit) & (max(abs(first(theta,f,...))) >= (abs(f(theta,...))+fscale)*tol)) stop(" ")
+  # 3. If maxit is reached without convergence. ä¸?
+  if ((max(abs(first(theta,f,...))) >= (abs(f(theta,...))+fscale)*tol)) stop(" ")
   
   gll0 <- first(theta,f,...) ## gran of nll at th0 
   eps <- 1e-7 ## finite difference interval
