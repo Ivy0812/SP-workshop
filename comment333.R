@@ -94,7 +94,7 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function n
   Bk1 <- diag(length(theta))
   for (iter in 1:maxit){ # loop over the maximum number of iterations before giving up
     # consider the magnitude of the objective and if the step length reduces the objective function with 
-    # suitable convergence, break and jump to line !!!!!!!!!!!!!!!!!!!!!
+    # suitable convergence, break and jump to line 160
     if (max(abs(first(theta,f,...))) < (abs(f(theta,...))+fscale)*tol) break
     else{# if convergence does not occur
       delta <- - Bk1 %*% first(theta,f,...) # compute the initial Quasi-Newton step - ∆ = −B[k]∇D(θ[k])
@@ -122,18 +122,22 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function n
 # Step 3: updates the inverse approximate Hessian - Quasi-Newton
 
 # 1.Let θ[k] denote the kth trial θ, with approx. inverse Hessian B[k].
-# 2.Let sk = θ[k+1] − θ[k] and yk = ∇D(θ[k+1]) − ∇D(θ[k])
-# 3.Defining ρ−1 = sTyk the BFGS update is kk. since ρk−1 is a constant, ρk can be simply calculated by reciprocal
+# 2.Let s[k] = θ[k+1] − θ[k] and y[k] = ∇D(θ[k+1]) − ∇D(θ[k])
+# 3.Defining ρ[k]^(-1) = s[k]^T*y[k] the BFGS update is as following (since ρk−1 is a constant, ρk can be simply calculated by reciprocal)
 # 4.The Quasi-Newton step from θ[k] is ∆ = −B[k]∇D(θ[k]), which may adjusted by Step 2  
 # update of the approximate inverse Hessian to have cost O(p2) (p - the number of parameters) 
-# 5.B[k+1] = (I − ρkskykT)B[k](I − ρkyksTk ) + ρksksTk =
-############################################      
+# 5.B[k+1] = (I-ρ[k]s[k]y[k]^T)B[k](I-ρ[k]y[k]s[k]^T)+ρ[k]s[k]s[k]^T, expand bracket: 
+#          = (B[k]-ρ[k]s[k]y[k]^T*B[k])(I-ρ[k]y[k]s[k]^T) + ρ[k]s[k]s[k]^T
+#   Let A  = B[k]-ρ[k]s[k]y[k]^T*B[k] then
+#   B[k+1] = A(I-ρ[k]y[k]s[k]^T) + ρ[k]s[k]s[k]^T
+#          = A - ρ[k](Ay[k])(s[k]^T) + ρ[k]s[k]s[k]^T 
+#####################################################  
       
-      delta <- step
-      yk <- first(theta + delta,f,...) - first(theta,f,...)
-      pk <- drop(1/t(delta) %*% yk) # 为什么drop
-      A <- Bk1 - pk*delta %*% (t(yk) %*% Bk1)
-      Bk1 <- A - pk*(A %*% yk) %*% t(delta) + pk*delta %*% t(delta)
+      delta <- step # assign step value to delta variable
+      yk <- first(theta + delta,f,...) - first(theta,f,...) # y[k] = ∇D(θ[k+1]) − ∇D(θ[k])
+      pk <- drop(1/t(delta) %*% yk) # since p[k] is a 1*1 matrix, need to use "drop" to extract constant value
+      A <- Bk1 - pk*delta %*% (t(yk) %*% Bk1) # define A = B[k]-ρ[k]s[k]y[k]^T*B[k]
+      Bk1 <- A - pk*(A %*% yk) %*% t(delta) + pk*delta %*% t(delta) # expand the bracket and substitute A 
       theta <- theta + delta
     }
   }
@@ -148,8 +152,8 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function n
 ####################################
   
   # if maxit is reached without convergence - issue error and jump out of the loop
-  # There are two cases of the iterations (!label line # in final version) in Step 2
-  # a. if convergence occurs, the condition of break is opposite to the following condition (!!!!line), 
+  # There are two cases of the iterations in line 95 in Step 2
+  # a. if convergence occurs, the condition of break is opposite to the following condition in line 160 
   # so function will not be stopped here.
   # b. if convergence does not occur, for loop will end by defaut twhen maxit is reached，which means 
   # the following condition is satisfied, so function will be stopped.
@@ -170,5 +174,6 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function n
   # if the supplied f has a gradient attribute, hide the attribute when output
   D <- f(theta,...) # set D to the final minimum objective value
   attr(D,"gradient") <- NULL # set the "gradient" attribute of D to NULL
-  list(f=D, theta=theta, iter=iter, g=first(theta,f,...), H=Hfd) # return the required list    
+  # return the required list, iter need to reduce by 1 since the loop starts by iter = 1 without actual iteration
+  list(f=D, theta=theta, iter=iter-1, g=first(theta,f,...), H=Hfd)     
 }
