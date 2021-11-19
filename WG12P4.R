@@ -1,4 +1,4 @@
-# This work is completed by group 12：Wenyi Yu s2161093, Minke Pan s2160782 and Yanren Mao s2207399
+# This work is completed by group 12: Wenyi Yu s2161093, Minke Pan s2160782 and Yanren Mao s2207399
 # address of github repo: https://github.com/Ivy0812/SP-workshop.git
 ####################################################################
 
@@ -98,15 +98,15 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function n
     # suitable convergence, break and jump to line 160
     if (max(abs(first(theta,f,...))) < (abs(f(theta,...))+fscale)*tol) break
     else{# if convergence does not occur
-      delta <- - Bk %*% first(theta,f,...) # compute the initial Quasi-Newton step - ∆ = −B[k]∇D(θ[k])
+      delta <- - Bk %*% first(theta,f,...) # compute the initial Quasi-Newton step: delta = -B[k] * derivateD(theta[k])
       # if the step leads to a non-finite objective value or fails to reduce the objective 
-      # repeatedly halve ∆ until D(θ + ∆) < D(θ)
+      # repeatedly halve delta until D(theta + delta) < D(theta)
       while (!(is.finite(f(theta+delta,...))) | (f(theta,...) < f(theta+delta,...))) delta <- delta/2 
 
       k <- 0.1 # set initial increment of step length to 0.1
       step <- delta # fix delta and change step by "step"
-      # if the second Wolfe condition is not met, i.e. ∇D(θ[k] + ∆)^T∆ < c2∇D(θ[k])^T∆ 
-      ##(the second Wolfe condition ∇D(θ[k] + ∆)^T∆ ≥ c2∇D(θ[k])^T∆ ensures B[K+1] stays positive definite)
+      # if the second Wolfe condition is not met, i.e. derivateD(theta[k] + delta)^T*delta < c2*derivateD(theta [k])^T*delta
+      ##(the second Wolfe condition derivateD(theta[k] + delta)^T*delta >= c2*derivateD(theta[k])^T*delta ensures B[K+1] stays positive definite)
       while ((t(first(theta+step,f,...)) %*% step) < (0.9 * t(first(theta,f,...)) %*% step)){
         step <- (1 + k) * delta # increase step length by k * delta
         # if reducing the step length leads to non-finite objective or fails to reduce the objective, 
@@ -122,22 +122,22 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function n
       
 # Step 3: updates the inverse approximate Hessian - Quasi-Newton
 
-# 1.Let θ[k] denote the kth trial θ, with approx. inverse Hessian B[k].
-# 2.Let s[k] = θ[k+1] − θ[k] and y[k] = ∇D(θ[k+1]) − ∇D(θ[k])
-# 3.Defining ρ[k]^(-1) = s[k]^T*y[k] the BFGS update is as following (since ρk−1 is a constant, ρk can be simply calculated by reciprocal)
-# 4.The Quasi-Newton step from θ[k] is ∆ = −B[k]∇D(θ[k]), which may adjusted by Step 2  
+# 1.Let theta[k] denote the kth trial theta, with approx. inverse Hessian B[k].
+# 2.Let s[k] = theta[k+1] - theta[k] and y[k] = derivateD(theta[k+1]) - derivateD(theta[k])
+# 3.Defining p[k]^(-1) = s[k]^T*y[k] the BFGS update is as following (since pk-1 is a constant, pk can be simply calculated by reciprocal)
+# 4.The Quasi-Newton step from theta[k] is delta = -B[k]derivateD(theta[k]), which may adjusted by Step 2  
 # update of the approximate inverse Hessian to have cost O(p2) (p - the number of parameters) 
-# 5.B[k+1] = (I-ρ[k]s[k]y[k]^T)B[k](I-ρ[k]y[k]s[k]^T)+ρ[k]s[k]s[k]^T, expand bracket: 
-#          = (B[k]-ρ[k]s[k]y[k]^T*B[k])(I-ρ[k]y[k]s[k]^T) + ρ[k]s[k]s[k]^T
-#   Let A  = B[k]-ρ[k]s[k]y[k]^T*B[k] then
-#   B[k+1] = A(I-ρ[k]y[k]s[k]^T) + ρ[k]s[k]s[k]^T
-#          = A - ρ[k](Ay[k])(s[k]^T) + ρ[k]s[k]s[k]^T 
+# 5.B[k+1] = (I-p[k]s[k]y[k]^T)B[k](I-p[k]y[k]s[k]^T)+p[k]s[k]s[k]^T, expand bracket: 
+#          = (B[k]-p[k]s[k]y[k]^T*B[k])(I-p[k]y[k]s[k]^T) + p[k]s[k]s[k]^T
+#   Let A  = B[k]-p[k]s[k]y[k]^T*B[k] then
+#   B[k+1] = A(I-p[k]y[k]s[k]^T) + p[k]s[k]s[k]^T
+#          = A - p[k](Ay[k])(s[k]^T) + p[k]s[k]s[k]^T 
 #####################################################  
       
       delta <- step # assign step value to delta variable
-      yk <- first(theta + delta,f,...) - first(theta,f,...) # y[k] = ∇D(θ[k+1]) − ∇D(θ[k])
+      yk <- first(theta + delta,f,...) - first(theta,f,...) # y[k] = derivateD(theta[k+1]) - derivateD(theta[k])
       pk <- drop(1/t(delta) %*% yk) # since p[k] is a 1*1 matrix, need to use "drop" to extract constant value
-      A <- Bk - pk*delta %*% (t(yk) %*% Bk) # define A = B[k]-ρ[k]s[k]y[k]^T*B[k]
+      A <- Bk - pk*delta %*% (t(yk) %*% Bk) # define A = B[k]-p[k]s[k]y[k]^T*B[k]
       Bk <- A - pk*(A %*% yk) %*% t(delta) + pk*delta %*% t(delta) # expand the bracket and substitute A 
       theta <- theta + delta # update theta
     }
