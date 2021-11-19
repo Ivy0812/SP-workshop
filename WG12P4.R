@@ -38,12 +38,12 @@
 
 bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function named "bfgs"
   
-  # if the objective function at the initial theta is infinite, "is.finite" will return FALSE
+  # if the objective value at the initial theta is infinite, "is.finite" will return FALSE
   # "!FALSE" means TRUE, then stop and issue error
-  if (!(is.finite(f(theta,...))))  stop("the objective function is not finite") 
+  if (!(is.finite(f(theta,...))))  stop("the objective value is not finite") 
   
   # if the supplied f does not supply a gradient attribute when requested, 
-  # "is.null" will return Ture then compute gradient
+  # "is.null" will return TURE then compute gradient
   if (is.null(attr(f(theta,...), "gradient"))){ 
     # create a function named "first" for finite difference approximations
     first <- function(theta,f,...) {
@@ -59,7 +59,7 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function n
     }
   } 
   else{# if the supplied f has a gradient attribute
-    # use "attr" to obtain the gradient attribute
+    # use "attr" to obtain the gradient value and put it into independent function "first"
     first <- function(theta,f,...) attr(f(theta,...),"gradient")
   }
 ################################################################
@@ -89,15 +89,15 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function n
     if (!(is.finite(i))) stop("at least 1 derivative is not finite at the initial theta")
   }
   
-  # set the initial inverse approximate Hessian to Identity matrix 
+  # set the initial inverse approximate Hessian to Identity matrix to avoid the need for a matrix solve
   # with row and column numbers equal to the length of theta
-  Bk1 <- diag(length(theta))
+  Bk <- diag(length(theta))
   for (iter in 1:maxit){ # loop over the maximum number of iterations before giving up
     # consider the magnitude of the objective and if the step length reduces the objective function with 
     # suitable convergence, break and jump to line 160
     if (max(abs(first(theta,f,...))) < (abs(f(theta,...))+fscale)*tol) break
     else{# if convergence does not occur
-      delta <- - Bk1 %*% first(theta,f,...) # compute the initial Quasi-Newton step - ∆ = −B[k]∇D(θ[k])
+      delta <- - Bk %*% first(theta,f,...) # compute the initial Quasi-Newton step - ∆ = −B[k]∇D(θ[k])
       # if the step leads to a non-finite objective value or fails to reduce the objective 
       # repeatedly halve ∆ until D(θ + ∆) < D(θ)
       while (!(is.finite(f(theta+delta,...))) | (f(theta,...) < f(theta+delta,...))) delta <- delta/2 
@@ -136,9 +136,9 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function n
       delta <- step # assign step value to delta variable
       yk <- first(theta + delta,f,...) - first(theta,f,...) # y[k] = ∇D(θ[k+1]) − ∇D(θ[k])
       pk <- drop(1/t(delta) %*% yk) # since p[k] is a 1*1 matrix, need to use "drop" to extract constant value
-      A <- Bk1 - pk*delta %*% (t(yk) %*% Bk1) # define A = B[k]-ρ[k]s[k]y[k]^T*B[k]
-      Bk1 <- A - pk*(A %*% yk) %*% t(delta) + pk*delta %*% t(delta) # expand the bracket and substitute A 
-      theta <- theta + delta
+      A <- Bk - pk*delta %*% (t(yk) %*% Bk) # define A = B[k]-ρ[k]s[k]y[k]^T*B[k]
+      Bk <- A - pk*(A %*% yk) %*% t(delta) + pk*delta %*% t(delta) # expand the bracket and substitute A 
+      theta <- theta + delta # update theta
     }
   }
 #############################
@@ -175,5 +175,5 @@ bfgs <- function(theta,f,...,tol=1e-5,fscale=1,maxit=100){ # create a function n
   D <- f(theta,...) # set D to the final minimum objective value
   attr(D,"gradient") <- NULL # set the "gradient" attribute of D to NULL
   # return the required list, iter need to reduce by 1 since the loop starts by iter = 1 without actual iteration
-  list(f=D, theta=theta, iter=iter-1, g=first(theta,f,...), H=Hfd)     
+  list(f=D, theta=theta, iter=iter-1, g=first(theta,f,...), H=H)     
 }
